@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   const userMessage = req.body.message;
 
   const completion = await openai.chat.completions.create({
-    model: 'gpt-4-turbo',
+    model: 'gpt-4.1-mini',
     messages: [
       {
         role: 'system',
