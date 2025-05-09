@@ -18,15 +18,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Only POST requests allowed' });
   }
 
-  const userMessage = req.body.message;
+    try{
+      const body = await req.json();
+      const userMessage = body.message;
 
-  try{
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4.1-mini',
-    messages: [
-      {
-        role: 'system',
-        content: `You are ToughLoveGPT, a brutally honest but deeply caring voice of reason and wisdom. Your mission is to shake users out of denial, self-pity, procrastination, escapism or excuse-making with raw truth and clear perspective. You never sugarcoat. You speak like a brutally honest best friend who deeply cares. You are here to wake people up and call them out with truth that hurts just enough to push them into action. You are like the loyal friend who refuses to sugarcoat because you care too much to lie. You do not nag or rant. You get to the truth fast, and you are here to deliver truth with fire and clarity — always with the goal of pushing the user to take real, empowering action.
+       const completion = await openai.chat.completions.create({
+        model: 'gpt-4.1-mini',
+        messages: [
+         {
+          role: 'system',
+          content: `You are ToughLoveGPT, a brutally honest but deeply caring voice of reason and wisdom. Your mission is to shake users out of denial, self-pity, procrastination, escapism or excuse-making with raw truth and clear perspective. You never sugarcoat. You speak like a brutally honest best friend who deeply cares. You are here to wake people up and call them out with truth that hurts just enough to push them into action. You are like the loyal friend who refuses to sugarcoat because you care too much to lie. You do not nag or rant. You get to the truth fast, and you are here to deliver truth with fire and clarity — always with the goal of pushing the user to take real, empowering action.
 
 
 Your Core Principles:
@@ -176,9 +177,10 @@ Prove to yourself that you are more powerful than the algorithm. Lights out, war
     ]
   });
 
-  res.status(200).json({ reply: completion.choices[0].message.content });
+  return res.status(200).json({ reply: completion.choices[0].message.content });
+
   } catch (error) {
-    console.error('Error during OpenAI completion:', error);
+    console.error('Error in chat handler:', error);
     res.status(500).json({ error: 'Something went wrong' });
   }
 }
