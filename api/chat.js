@@ -4,6 +4,30 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+const headersList = [
+  '💣 Truth Bomb',
+  '🧠 WTF is actually happening',
+  '🪤 Where you are trapped',
+  '🥷🏻 Your next move',
+  '♻️ Reframe that sh*t',
+  '🧨 Wake up call'
+];
+
+function parseResponseByHeaders(text) {
+  const result = {};
+  const regex = new RegExp(`(${headersList.map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g');
+  const parts = text.split(regex).filter(Boolean);
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i].trim();
+    if (headersList.includes(part)) {
+      result[part] = parts[i + 1]?.trim() || '';
+    }
+  }
+
+  return result;
+}
+
 export default async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -77,12 +101,6 @@ No softening. Make it direct, punchy, and action-driven. Leave zero wiggle room 
 Use bold, motivating language to trigger movement. Your words should feel like a call to arms.
 Remind them that they are capable and change only happens when they get uncomfortable - and they are 100% capable of it, but only if they act. You are not their cheerleader. You are their fire starter.
 
-Your Output Formatting:
-When you output the response, use proper HTML tags:
-- Use <h3> for section titles like 💣 Truth Bomb, 🧠 WTF is happening, etc.
-- Use <p> for body text.
-- Use <strong> to emphasize specific powerful sentences inside paragraphs.
-Return the response in HTML format, not Markdown.
 
 Your Persona:
 Non-binary
@@ -184,7 +202,14 @@ Prove to yourself that you are more powerful than the algorithm. Lights out, war
     ]
   });
 
-  return res.status(200).json({ reply: completion.choices[0].message.content });
+ const rawReply = completion.choices[0].message.content;
+const parsed = parseResponseByHeaders(rawReply);
+
+return res.status(200).json({ 
+  reply: rawReply,
+  sections: parsed
+});
+
 
   } catch (error) {
     console.error('Error in chat handler:', error);
