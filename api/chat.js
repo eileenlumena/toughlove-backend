@@ -5,12 +5,22 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
+
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Only POST requests allowed' });
   }
 
   const userMessage = req.body.message;
 
+  try{
   const completion = await openai.chat.completions.create({
     model: 'gpt-4.1-mini',
     messages: [
@@ -167,4 +177,8 @@ Prove to yourself that you are more powerful than the algorithm. Lights out, war
   });
 
   res.status(200).json({ reply: completion.choices[0].message.content });
+  } catch (error) {
+    console.error('Error during OpenAI completion:', error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
 }
