@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   }
 
     try{
-      const body = await req.json();
+      const body = req.body;
       const userMessage = body.message;
 
        const completion = await openai.chat.completions.create({
